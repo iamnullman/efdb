@@ -7,8 +7,8 @@
 ```js
 const efDB = require("ef.db")
 const db = new efDB({
-  dbName:"dosyaismi",
-  dbFolder:"klasorismi"
+  dataName:"dosyaismi",
+  dataFolder:"klasorismi"
 })
 
 db.set("x.y.z", "abc") // abc
