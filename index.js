@@ -2,8 +2,8 @@ const fs = require('fs');
 const fonksiyon = require("./fonksiyon/yaml.js");
 let YAML;
 
-class nullDB {
-  constructor(ayarlar={}) {
+class efDB {
+  constructor(ayarlar={dataName:String,dataFolder:String}) {
    this.option = ayarlar
    this.dataName = this.option.dataName
    this.dataFolder = this.option.dataFolder
@@ -221,4 +221,6 @@ class nullDB {
   }
 }
 
-module.exports = nullDB;
+module.exports = efDB
+module.exports.version = "1.0.5"
+module.exports.destek = "https://discord.gg/etqAqHFZsc"
