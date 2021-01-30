@@ -5,7 +5,7 @@
 # Örnek 
 
 ```js
-const efDB = require("ef.db")
+const efDB = require("efdb")
 const db = new efDB({
   dataName:"dosyaismi",
   dataFolder:"klasorismi"
