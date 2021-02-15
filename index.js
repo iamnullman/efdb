@@ -20,6 +20,7 @@ class efDB {
     this.unpush = this.constructor.unpush;
     this.all = this.constructor.all;
     this.deleteAll = this.constructor.deleteAll;
+    this.delete = this.constructor.delete;
   }
   static set(data, key) {
   return this.efdb.set(data, key)
@@ -45,10 +46,13 @@ class efDB {
   static all() {
     return this.efdb.all()
   }
+  static delete(data) {
+    return this.efdb.delete(data)
+  }
   static deleteAll() {
     return this.efdb.deleteAll()
   }
 }
 module.exports = efDB
-module.exports.version = "1.1.5"
+module.exports.version = "1.1.6"
 module.exports.destek = "https://discord.gg/etqAqHFZsc"
