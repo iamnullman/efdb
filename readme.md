@@ -5,7 +5,6 @@
 
 # Güncelleme Notları
 
-- JsonDB eklendi
 - Ufak hata gidermeleri
 
 # Örnek 
