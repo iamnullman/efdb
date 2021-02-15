@@ -9,7 +9,10 @@ class JsonDB {
         this.dataFolder = this.option.dataFolder
         if(!this.dataName) throw new Error("Bir database ismi belirtmelisin")
         if(!this.dataFolder) throw new Error("Bir database klasörü belirtmelisin")
-        this.db = low(new FileSync(`./${this.dataFolder}/${this.dataName}` + ".json"));
+         if(fs.existsSync(`./${this.dataFolder}/${this.dataName}.json`) === false) {
+          fs.writeFileSync(`./${this.dataFolder}/${this.dataName}.json`, "{}");
+      }
+      this.db = low(new FileSync(`./${this.dataFolder}/${this.dataName}` + ".json"));
 };
      set(anahtar, değer) {
         if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
