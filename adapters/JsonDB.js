@@ -9,10 +9,10 @@ class JsonDB {
         this.dataFolder = this.option.dataFolder
         if(!this.dataName) throw new Error("Bir database ismi belirtmelisin")
         if(!this.dataFolder) throw new Error("Bir database klasörü belirtmelisin")
-         if(fs.existsSync(`./${this.dataFolder}/${this.dataName}.json`) === false) {
+        if(fs.existsSync(`./${this.dataFolder}/${this.dataName}.json`) === false) {
           fs.writeFileSync(`./${this.dataFolder}/${this.dataName}.json`, "{}");
       }
-      this.db = low(new FileSync(`./${this.dataFolder}/${this.dataName}` + ".json"));
+        this.db = low(new FileSync(`./${this.dataFolder}/${this.dataName}` + ".json"));
 };
      set(anahtar, değer) {
         if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
@@ -76,19 +76,23 @@ class JsonDB {
         if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
 if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
 if (!değer) throw new Error("Veriye kaydedilicek değeri girmelisin")
-if (this.db.has(anahtar).value() === false) return null
-        if (typeof this.db.get(anahtar).value() !== 'number') throw new TypeError('');
-        this.db.set(anahtar, Math.floor(this.db.get(anahtar).value()+değer)).write()
+if (this.db.has(anahtar).value() === false) {
+      this.db.set(anahtar, değer).write()
+  return this.db.get(anahtar).value()
+}else{
+  if (isNaN(this.db.get(anahtar).value())) throw new Error(`\`${anahtar}\` anahtar kelimesindeki veri bir "Sayı" olmadığı icin bulunan veriye ekleyenemez.`);
+  this.db.set(anahtar, Math.floor(this.db.get(anahtar).value() + Number(değer))).write()
         return this.db.get(anahtar).value()
+}
     };
      subtract(anahtar, değer) {
 if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
 if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
 if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
 if (!değer) throw new Error("Veriye kaydedilicek değeri girmelisin")
- if (this.db.has(anahtar).value() === false) return null
-        if (typeof this.db.get(anahtar).value() !== 'number') throw new TypeError(`\`${anahtar}\` anahtar kelimesindeki veri bir "Sayı" olmadığı için bulunan veriden yazılan veriyi çıkaramıyorum!`);
-        this.db.set(anahtar, Math.floor(this.db.get(anahtar).value()-değer)).write()
+ if (this.db.has(anahtar).value() === false) throw new Error("Böyle bir veri bulunmamakta")
+        if (isNaN(this.db.get(anahtar).value())) throw new Error(`\`${anahtar}\` anahtar kelimesindeki veri bir "Sayı" olmadığı icin bulunan veriden yazılan veriyi çıkaramıyorum!`);
+        this.db.set(anahtar, Math.floor(this.db.get(anahtar).value()-Number(değer))).write()
         return this.db.get(anahtar).value()
     };
     all() {
