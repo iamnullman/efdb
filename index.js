@@ -56,7 +56,7 @@ class efDB {
   static deleteAll() {
     return this.efdb.deleteAll()
   }
-}
+} 
 module.exports = efDB
 module.exports.version = "1.1.7"
 module.exports.destek = "https://discord.gg/umXR2mspNx"
