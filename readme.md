@@ -1,6 +1,4 @@
-![](https://raster.shields.io/npm/dt/efdb.png)
-
-# EfDB 
+# EfDB ![](https://raster.shields.io/npm/dt/efdb.png)
 
 > - Tükçe veritabanı modülü
 > - Discord sunucumuz : https://discord.gg/umXR2mspNx
