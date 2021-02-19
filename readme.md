@@ -1,3 +1,5 @@
+![](https://raster.shields.io/npm/dt/efdb.png)
+
 # EfDB 
 
 > - Tükçe veritabanı modülü
@@ -5,6 +7,7 @@
 
 # Güncelleme Notları
 
+- JsonDB eklendi
 - Ufak hata gidermeleri
 
 # Örnek 
