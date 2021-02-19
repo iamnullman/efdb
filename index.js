@@ -15,6 +15,7 @@ class efDB {
     this.get = this.constructor.get;
     this.fetch = this.constructor.fetch;
     this.add = this.constructor.add;
+    this.has = this.constructor.has;
     this.subtract = this.constructor.subtract;
     this.push = this.constructor.push;
     this.unpush = this.constructor.unpush;
@@ -24,6 +25,9 @@ class efDB {
   }
   static set(data, key) {
   return this.efdb.set(data, key)
+  }
+  static has(data) {
+    return this.efdb.has(data)
   }
   static get(data) {
     return this.efdb.get(data)
@@ -54,5 +58,5 @@ class efDB {
   }
 }
 module.exports = efDB
-module.exports.version = "1.1.6"
-module.exports.destek = "https://discord.gg/etqAqHFZsc"
+module.exports.version = "1.1.7"
+module.exports.destek = "https://discord.gg/umXR2mspNx"
