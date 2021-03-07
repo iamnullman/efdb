@@ -1,223 +1,94 @@
-const fs = require('fs');
-const fonksiyon = require("../ek/yaml.js");
-let YAML;
+const { isObject, setObject, getObject, deleteObject } = require("../util");
+let fs, YAML;
 
-class yamlDB {
-  constructor(ayarlar={dataName:String,dataFolder:String}) {
-   this.option = ayarlar
-   this.dataName = this.option.dataName
-   this.dataFolder = this.option.dataFolder
-   if(!this.dataName) throw new Error("Bir database ismi belirtmelisin")
-   if(!this.dataFolder) throw new Error("Bir database klasörü belirtmelisin")
-   try {
-    YAML = require("yaml");
-  } catch (error) {
-    throw new Error("Lütfen database için 'yaml' modülünü indiriniz.");
-  }
-  fonksiyon.fetchFiles(this.dataFolder, this.dataName);
-}
+module.exports = class {
+  constructor(options) {
+    if (!isObject(options)) throw new TypeError("\"options\" parameter must be Object.");
+    if (!options.hasOwnProperty("databaseName")) throw new TypeError("\"options\" parameter must have \"databaseName\" prototype.");
+    if (!options.hasOwnProperty("databaseFolder")) throw new TypeError("\"options\" parameter must have \"databaseFolder\" prototype.");
+    if (typeof options.databaseName !== "string") throw new TypeError("\"databaseName\" prototype in \"options\" parameter must be String.");
+    if (typeof options.databaseFolder !== "string") throw new TypeError("\"databaseFolder\" prototype in \"options\" parameter must be String.");
 
-	set(db, data) {
-    fonksiyon.fetchFiles(this.dataFolder, this.dataName);
+    if (options.hasOwnProperty("ignoreWarns") && (typeof options.ignoreWarns !== "boolean")) throw new TypeError("\"ignoreWarns\" prototype in \"options\" parameter must be Boolean.");
+    if (options.hasOwnProperty("autoFile") && (typeof options.autoFile !== "boolean")) throw new TypeError("\"autoFile\" prototype in \"options\" parameter must be Boolean.");
+    if (options.hasOwnProperty("deletingBlankData") && (typeof options.deletingBlankData !== "boolean")) throw new TypeError("\"deletingBlankData\" prototype in \"options\" parameter must be Boolean.");
 
-    if(!db) {
-      throw new Error("Kaydedilicek bir veri belirtin.");
-    }
-
-    if(!data) {
-      throw new Error("Veriye bir değer girmeniz gerekmekte!");
-    }
-
-    var content = YAML.parse(fs.readFileSync(`./${this.dataFolder}/${this.dataName}.yaml`, "utf8"));
-    fonksiyon.set(db, data, content);
-    fs.writeFileSync(`./${this.dataFolder}/${this.dataName}.yaml`, YAML.stringify(content));
-    return this.get(db);
-
-    
-  }
-
-  get(db) {
-
-    if(!db) {
-      throw new Error("Veri ismi giriniz.");
-    }
-
-    var content = YAML.parse(fs.readFileSync(`./${this.dataFolder}/${this.dataName}.yaml`, "utf8"));
+    this.databaseName = options.databaseName;
+    this.databaseFolder = options.databaseFolder;
+    this.ignoreWarns = ((typeof options.ignoreWarns != "undefined") ? options.ignoreWarns : false);
+    this.autoFile = ((typeof options.autoFile != "undefined") ? options.autoFile : true);
+    this.deletingBlankData = ((typeof options.deletingBlankData != "undefined") ? options.deletingBlankData : false);
 
     try {
-      return fonksiyon.get(content, ...db.split("."));
-    } catch(err) {
-      return undefined;
+      fs = require("graceful-fs");
+    } catch (error) {
+      if (!this.ignoreWarns) console.warn("\"graceful-fs\" better than \"fs\". You can install this.");
+      fs = require("fs");
     }
-
-  }
-
-  fetch(db) {
-
-    if(!db) {
-      throw new Error("Veri ismi giriniz.");
-    }
-
-    var content = YAML.parse(fs.readFileSync(`./${this.dataFolder}/${this.dataName}.yaml`, "utf8"));
 
     try {
-      return fonksiyon.get(content, ...db.split("."));
-    } catch(err) {
-      return undefined;
+      YAML = require("yaml");
+    } catch (error) {
+      throw new TypeError("You must install \"yaml\".")
     }
 
+    if (this.autoFile == true) {
+      if (fs.existsSync(`./${this.databaseFolder}/${this.databaseName}.yaml`) == false) {
+        if (fs.existsSync(`/${this.databaseFolder}`) == false) {
+          fs.mkdirSync(`./${this.databaseFolder}`);
+        }
+
+        fs.writeFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "");
+      }
+    }
   }
 
-  has(db) {
+  set(key, value) {
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "utf8");
+    data = ((YAML.parse(data) == null) ? {} : YAML.parse(data));
+    data = setObject(data, key, value);
 
-    if(!db) {
-      throw new Error("Veri ismi giriniz.");
-    }
+    fs.writeFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, YAML.stringify(data));
 
-    var content = YAML.parse(fs.readFileSync(`./${this.dataFolder}/${this.dataName}.yaml`, "utf8"));
-
-    try {
-      return fonksiyon.get(content, ...db.split(".")) ? true : false;
-    } catch(err) {
-      return false;
-    }
-
+    return data;
   }
 
-  delete(db) {
-    fonksiyon.fetchFiles(this.dataFolder, this.dataName);
+  get(key) {
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "utf8");
+    data = getObject(YAML.parse(data), key);
 
-    if(!db) {
-      throw new Error("Veri ismi giriniz.");
-    }
-
-    var content = YAML.parse(fs.readFileSync(`./${this.dataFolder}/${this.dataName}.yaml`, "utf8"));
-
-    if(!this.get(db)) {
-      return false;
-    }
-
-    fonksiyon.remove(content, db);
-    
-    fs.writeFileSync(`./${this.dataFolder}/${this.dataName}.yaml`, YAML.stringify(content));
-
-    return true;
+    return data;
   }
 
-  add(db, number) {
-    
-    if(!db) {
-      throw new Error("Veri ismi giriniz.");
-    }
+  has(key) {
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "utf8");
+    data = getObject(YAML.parse(data), key);
 
-    if(!number) {
-      throw new Error("Veriye eklenicek sayıyı giriniz");
-    }
-
-    if(isNaN(number)) {
-      throw new Error("Eklenicek değer sayı olmalı!");
-    }
-
-    this.set(db, Number(this.get(db) ? (isNaN(this.get(db)) ? Number(number) : this.get(db)+Number(number)) : Number(number)));
-    
-    return this.get(db);
-
+    return (typeof data != "undefined");
   }
 
-  subtract(db, number) {
-    
-     if(!db) {
-      throw new Error("Veri ismi giriniz.");
-    }
+  delete(key) {
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "utf8");
+    data = deleteObject(YAML.parse(data), key);
 
-    if(!number) {
-      throw new Error("Veriden silinicek sayıyı giriniz");
-    }
+    if (this.deletingBlankData == true) {
+      for (let i = 0; i < key.split(".").length; i++) {
+        let newGet = getObject(data, key.split(".").slice(0, -(i + 1)).join("."));
 
-    if(isNaN(number)) {
-      throw new Error("Silinicek değer sayı olmalı!");
-    }
-
-    if(this.get(db)-number < 1) {
-      this.delete(db);
-      return (this.get(db) || 0);
-    }
-
-    if(!this.get(db)) {
-      this.delete(db);
-      return (this.get(db) || 0);
-    }
-
-    this.set(db, this.get(db) ? (this.get(db)-Number(number) <= 1 ? 1 : (isNaN(this.get(db)) ? 1 : this.get(db)-Number(number)) || 1) : 1);
-    
-    return this.get(db);
-
-  }
-
-  push(db, data) {
-
-    if(!db) {
-      throw new Error("Kaydedilicek bir veri belirtin.");
-    }
-
-    if(!data) {
-      throw new Error("Veriye bir değer girmeniz gerekmekte!");
-    }
-
-    var arr = [];
-
-    if(this.get(db)) {
-      if(typeof this.get(db) !== "object") {
-        arr = [];
-      } else {
-        arr = this.get(db);
+        if ((isObject(newGet) == true) && (Object.keys(newGet).length == 0)) {
+          data = deleteObject(data, key.split(".").slice(0, -(i + 1)).join("."));
+        }
       }
     }
 
-    arr.push(data);
+    fs.writeFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, YAML.stringify(data));
 
-    this.set(db, arr);
-
-    return this.get(db);
-
-  }
-
-  unpush(db, data) {
-
-    if(!db) {
-      throw new Error("Kaydedilicek bir veri belirtin.");
-    }
-
-    if(!data) {
-      throw new Error("Veriye bir değer girmeniz gerekmekte!");
-    }
-
-    var arr = [];
-
-    if(this.get(db)) {
-      arr = this.get(db);
-    }
-
-    arr = arr.filter((x) => x !== data);
-
-    this.set(db, arr);
-
-    return this.get(db);
-
+    return true;
   }
 
   all() {
-    var content = YAML.parse(fs.readFileSync(`./${this.dataFolder}/${this.dataName}.yaml`, "utf8"));
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "utf8");
 
-    return content;
-  }
-
-  deleteAll() {
-
-    fs.writeFileSync(`./${this.dataFolder}/${this.dataName}.yaml`, YAML.stringify({}));
-
-    return true;
-
+    return YAML.parse(data);
   }
 }
-module.exports = yamlDB
