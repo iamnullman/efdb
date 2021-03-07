@@ -1,33 +1,43 @@
-# EfDB ![](https://raster.shields.io/npm/dt/efdb.png)
+# efdb
+![npm downloads](https://img.shields.io/npm/dt/efdb)
++ A database handler, Supports Jsondb, YamlDB.
 
-> - Tükçe veritabanı modülü
-> - Discord sunucumuz : https://discord.gg/umXR2mspNx
+## Links
 
-# Güncelleme Notları
+- ~~Documentation~~
+- [NPM page](https.//npmjs.com/package/efdb)
+- [GitHub page](https://github.com/NulIMan/efdb)
 
-- Ufak hata gidermeleri
+## Support
 
-# Örnek 
++ Join our Discord to get help!
+- https://discord.gg/umXR2mspNx
+
+## Example
 
 ```js
-const efDB = require("efdb")
-const db = new efDB({
-    adapter:"JsonDB",//JsonDB veya YamlDB varsayılan JsonDB
-    dataName:"test",//veritabanı dosya isimi girilmezse efDB yapılır
-    dataFolder:"deneme"//veritabanı klasör isimi girilmezse efDB yapılır
-})
+const efdb = require("efdb");
+const db = new efdb({
+  "databaseName": "database",
+  "databaseFolder": "databases",
+  "adapter":"JsonDB",
+  "autoFile": true
+});
 
-db.set("x.y.z", "abc") // abc
- 
-db.get("x") // {y: {z: "abc"}}
-db.fetch("x") // {y: {z: "abc"}}
-db.all() // {x: {y: {z: "abc"}}}
- 
-db.push("a", "hello") //  ["hello"]
-db.push("a", "world") //  ["hello", "world"]
-db.unpush("a", "hello") // ["world"]
-
-db.has("x") // true
-db.delete("x") // true
-db.deleteAll() // true
+db.set("a.b.c", 12) 
+// 12
+db.add("a.b.c", 1)
+// 13
+db.subtract("a.b.c", 1)
+// 12
+db.delete("a")
+// true
+db.push("ab", "testing")
+// [ 'testing' ]
+db.push("ab", "testing1")
+// [ 'testing', 'testing1' ]
+db.unpush("ab", "testing1")
+// [ 'testing' ]
+db.has("ab")
+// true
 ```
