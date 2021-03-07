@@ -1,33 +1,32 @@
 {
   "name": "efdb",
-  "version": "1.1.5",
-  "description": "Türkçe basit yaml veritabanı",
+  "version": "1.1.8",
+  "description": "A database handler, Supports Jsondb, YamlDB.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "null.man",
-  "license": "ISC",
-  "dependencies": {
-    "fs": "0.0.1-security",
-    "lowdb": "^1.0.0"
-  },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NulIMan/efdb.git"
   },
   "keywords": [
-    "yamldb",
-    "jsondb",
-    "database",
+    "efdb",
     "yaml",
     "json",
-    "nullman",
-    "turkish"
+    "eftools",
+    "database",
+    "jsondatabase",
+    "yamldatabase"
   ],
+  "author": "null.man",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/NulIMan/efdb/issues"
   },
-  "homepage": "https://github.com/NulIMan/efdb#readme"
+  "homepage": "https://github.com/NulIMan/efdb#readme",
+  "dependencies": {
+    "eftools": "^1.0.2",
+    "fs": "0.0.1-security"
+  }
 }
