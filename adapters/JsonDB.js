@@ -1,108 +1,96 @@
-const fs = require('fs');
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+const { isObject, setObject, getObject, deleteObject } = require("../util");
+let fs;
 
-class JsonDB {
-    constructor(ayarlar={dataName:String,dataFolder:String}) {
-        this.option = ayarlar
-        this.dataName = this.option.dataName
-        this.dataFolder = this.option.dataFolder
-        if(!this.dataName) throw new Error("Bir database ismi belirtmelisin")
-        if(!this.dataFolder) throw new Error("Bir database klasörü belirtmelisin")
-        if(fs.existsSync(`./${this.dataFolder}/${this.dataName}.json`) === false) {
-          fs.writeFileSync(`./${this.dataFolder}/${this.dataName}.json`, "{}");
-      }
-        this.db = low(new FileSync(`./${this.dataFolder}/${this.dataName}` + ".json"));
-};
-     set(anahtar, değer) {
-        if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
-        if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
-  if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
-        if (!değer) throw new Error("Veriye kaydedilicek değeri girmelisin")
-        this.db.set(anahtar, değer).write()
-        return this.db.get(anahtar, değer).value()
-    };
+module.exports = class {
+  constructor(options) {
+   if (!isObject(options)) throw new TypeError("\"options\" parameter must be Object.");
+    if (!options.hasOwnProperty("databaseName")) throw new TypeError("\"options\" parameter must have \"databaseName\" prototype.");
+    if (!options.hasOwnProperty("databaseFolder")) throw new TypeError("\"options\" parameter must have \"databaseFolder\" prototype.");
+    if (typeof options.databaseName !== "string") throw new TypeError("\"databaseName\" prototype in \"options\" parameter must be String.");
+    if (typeof options.databaseFolder !== "string") throw new TypeError("\"databaseFolder\" prototype in \"options\" parameter must be String.");
 
+    if (options.hasOwnProperty("ignoreWarns") && (typeof options.ignoreWarns !== "boolean")) throw new TypeError("\"ignoreWarns\" prototype in \"options\" parameter must be Boolean.");
+    if (options.hasOwnProperty("autoFile") && (typeof options.autoFile !== "boolean")) throw new TypeError("\"autoFile\" prototype in \"options\" parameter must be Boolean.");
+    if (options.hasOwnProperty("deletingBlankData") && (typeof options.deletingBlankData !== "boolean")) throw new TypeError("\"deletingBlankData\" prototype in \"options\" parameter must be Boolean.");
 
-     delete(anahtar) {
-        if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
-        if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
- if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
- if (this.db.has(anahtar).value() === false) return false
-        this.db.unset(anahtar).write()
-        return true
-    };
-     get(anahtar) {
-        if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
-        if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
- if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
- if (this.db.has(anahtar).value() === false) return null
-        return this.db.get(anahtar).value()
-    };
+    this.databaseName = options.databaseName;
+    this.databaseFolder = options.databaseFolder;
+    this.ignoreWarns = ((typeof options.ignoreWarns != "undefined") ? options.ignoreWarns : false);
+    this.autoFile = ((typeof options.autoFile != "undefined") ? options.autoFile : true);
+    this.readableSaving = ((typeof options.readableSaving != "undefined") ? options.readableSaving : false);
+    this.deletingBlankData = ((typeof options.deletingBlankData != "undefined") ? options.deletingBlankData : false);
 
-     has(anahtar) {
-        if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
-        if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
- if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
- return this.db.has(anahtar).value()
-    };
+    try {
+      fs = require("graceful-fs");
+    } catch (error) {
+      if (!this.ignoreWarns) console.warn("\"graceful-fs\" better than \"fs\". You can install this.");
+      fs = require("fs");
+    }
 
-     push(anahtar, değer) {
-        if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
-        if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
- if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
- if (!değer) throw new Error("Veriye kaydedilicek değeri girmelisin")
- if (this.db.has(anahtar).value() === false) {
-         this.db.set(anahtar, [değer]).write()
-        return this.db.get(anahtar).value()
+    if (this.autoFile == true) {
+      if (fs.existsSync(`./${this.databaseFolder}/${this.databaseName}.json`) == false) {
+        if (fs.existsSync(`./${this.databaseFolder}`) == false) {
+          fs.mkdirSync(`./${this.databaseFolder}`);
         }
-      
-        if (Array.isArray(this.db.get(anahtar).value()) === false) return null;
-      this.db.get(anahtar).push(değer).write()
-        return this.db.get(anahtar).value()
-    };
-     unpush(anahtar, değer) {
-        if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
-        if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
- if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
- if (!değer) throw new Error("Veriye kaydedilicek değeri girmelisin")
- if (this.db.has(anahtar).value() === false) return null
-        if (Array.isArray(this.db.get(anahtar).value()) === false) return null;
-   this.db.set(anahtar, this.db.get(anahtar).value().filter(k => k != değer)).write()
-      return this.db.get(anahtar).value()
-    };
-     add(anahtar, değer) {
-        if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
-        if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
-if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
-if (!değer) throw new Error("Veriye kaydedilicek değeri girmelisin")
-if (this.db.has(anahtar).value() === false) {
-      this.db.set(anahtar, değer).write()
-  return this.db.get(anahtar).value()
-}else{
-  if (isNaN(this.db.get(anahtar).value())) throw new Error(`\`${anahtar}\` anahtar kelimesindeki veri bir "Sayı" olmadığı icin bulunan veriye ekleyenemez.`);
-  this.db.set(anahtar, Math.floor(this.db.get(anahtar).value() + Number(değer))).write()
-        return this.db.get(anahtar).value()
-}
-    };
-     subtract(anahtar, değer) {
-if (!this.dataName) throw new Error('Bir database ismi girmelisin!');
-if (!this.dataFolder) throw new Error('Bir database klasor ismi girmelisin!');
-if (!anahtar) throw new Error("Kaydetmem için bir veri ismi gir")
-if (!değer) throw new Error("Veriye kaydedilicek değeri girmelisin")
- if (this.db.has(anahtar).value() === false) throw new Error("Böyle bir veri bulunmamakta")
-        if (isNaN(this.db.get(anahtar).value())) throw new Error(`\`${anahtar}\` anahtar kelimesindeki veri bir "Sayı" olmadığı icin bulunan veriden yazılan veriyi çıkaramıyorum!`);
-        this.db.set(anahtar, Math.floor(this.db.get(anahtar).value()-Number(değer))).write()
-        return this.db.get(anahtar).value()
-    };
-    all() {
-      var content = fs.readFileSync(`./${this.dataFolder}/${this.dataName}.json`, "utf8")
-      return content || "";
-    };  
-    deleteAll() {
-      fs.writeFileSync(`./${this.dataFolder}/${this.dataName}.json`, "{}");
-      return true;
-    };
-};
 
-module.exports = JsonDB;
+        fs.writeFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, "{}");
+      }
+    }
+  }
+
+  set(key, value) {
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, "utf8");
+    data = setObject(JSON.parse(data), key, value);
+
+    if (this.readableSaving == true) {
+      fs.writeFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, JSON.stringify(data, null, 2));
+    } else {
+      fs.writeFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, JSON.stringify(data));
+    }
+
+    return data;
+  }
+
+  get(key) {
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, "utf8");
+    data = getObject(JSON.parse(data), key);
+
+    return data;
+  }
+
+  has(key) {
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, "utf8");
+    data = getObject(JSON.parse(data), key);
+
+    return (typeof data != "undefined");
+  }
+
+  delete(key) {
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, "utf8");
+    data = deleteObject(JSON.parse(data), key);
+
+    if (this.deletingBlankData == true) {
+      for (let i = 0; i < key.split(".").length; i++) {
+        let newGet = getObject(data, key.split(".").slice(0, -(i + 1)).join("."));
+
+        if ((isObject(newGet) == true) && (Object.keys(newGet).length == 0)) {
+          data = deleteObject(data, key.split(".").slice(0, -(i + 1)).join("."));
+        }
+      }
+    }
+
+    if (this.readableSaving == true) {
+      fs.writeFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, JSON.stringify(data, null, 2));
+    } else {
+      fs.writeFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, JSON.stringify(data));
+    }
+
+    return true;
+  }
+
+  all() {
+    let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.json`, "utf8");
+
+    return JSON.parse(data);
+  }
+}
