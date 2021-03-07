@@ -1,62 +1,130 @@
-const adapters = [ "YamlDB", "JsonDB"]
-class efDB {
-  constructor(ayarlar={}) {
-    this.options = ayarlar
-    this.adapter = ayarlar["adapter"] ? (adapters.includes(ayarlar["adapter"]) ? ayarlar["adapter"] : "JsonDB") : "JsonDB";
-    this.dataName = ayarlar["dataName"] ? ayarlar["dataName"] : "efDB" 
-    this.dataFolder = ayarlar["dataFolder"] ? ayarlar["dataFolder"] : "efDB" 
-    const adapterr = require(`./adapters/${this.adapter}`)
-    this.efdb = new adapterr({
-      adapter:this.adapter,
-      dataName:this.dataName,
-      dataFolder:this.dataFolder
-    })
-    this.set = this.constructor.set;
-    this.get = this.constructor.get;
-    this.fetch = this.constructor.fetch;
-    this.add = this.constructor.add;
-    this.has = this.constructor.has;
-    this.subtract = this.constructor.subtract;
-    this.push = this.constructor.push;
-    this.unpush = this.constructor.unpush;
-    this.all = this.constructor.all;
-    this.deleteAll = this.constructor.deleteAll;
-    this.delete = this.constructor.delete;
+const { isValidValue } = require("./util");
+
+class Database {
+ 
+  constructor(options) {
+    if (options.adapter.toLowerCase() == "jsondb") {
+      let JSONDatabase = require("./databases/JsonDB");
+      this.database = new JSONDatabase(options);
+    }else if(options.adapter.toLowerCase() == "yamldb") {
+      let YAMLDatabase = require("./databases/YamlDB");
+      this.database = new YAMLDatabase(options);
+    }else throw new Error("You must specify the database.")
   }
-  static set(data, key) {
-  return this.efdb.set(data, key)
+
+  set(key, value) {
+    if (typeof key == "undefined") throw new TypeError("\"key\" parameter must be available.");
+    if (typeof key != "string") throw new TypeError("\"key\" parameter must be String.");
+    if (typeof value == "undefined") throw new TypeError("\"value\" parameter must be available.");
+    if (!isValidValue(value)) throw new TypeError("\"value\" parameter must be String or Number or Boolean or Object or Array.");
+
+    this.database.set(key, value);
+
+    return this.database.get(key);
   }
-  static has(data) {
-    return this.efdb.has(data)
+
+  delete(key) {
+    if (typeof key == "undefined") throw new TypeError("\"key\" parameter must be available.");
+    if (typeof key != "string") throw new TypeError("\"key\" parameter must be String.");
+
+    this.database.delete(key);
+
+    return true;
   }
-  static get(data) {
-    return this.efdb.get(data)
+
+  all() {
+    return this.database.all();
   }
-  static fetch(data) {
-    return this.efdb.get(data)
+
+  get(key) {
+    if (typeof key == "undefined") throw new TypeError("\"key\" parameter must be available.");
+    if (typeof key != "string") throw new TypeError("\"key\" parameter must be String.");
+
+    return this.database.get(key);
   }
-  static add(data, number) {
-    return this.efdb.add(data, number)
+
+  has(key) {
+    if (typeof key == "undefined") throw new TypeError("\"key\" parameter must be available.");
+    if (typeof key != "string") throw new TypeError("\"key\" parameter must be String.");
+
+    return this.database.has(key);
   }
-  static subtract(data, number) {
-    return this.efdb.subtract(data, number)
+
+  fetch(key) {
+    return this.get(key);
   }
-  static push(data, key) {
-  return this.efdb.push(data, key)
+
+  push(key, value) {
+    if (typeof key == "undefined") throw new TypeError("\"key\" parameter must be available.");
+    if (typeof key != "string") throw new TypeError("\"key\" parameter must be String.");
+    if (typeof value == "undefined") throw new TypeError("\"value\" parameter must be available.");
+    if (!isValidValue(value)) throw new TypeError("\"value\" parameter must be String or Number or Boolean or Object or Array.");
+
+    if ((this.database.has(key) == false) && (this.database.ignoreWarns == false)) console.warn("This data isn't available. Created new array to this data.");
+    if (this.database.has(key) == false) this.database.set(key, []);
+
+    let data = this.database.get(key);
+
+    if (!Array.isArray(data)) throw new TypeError("This data isn't Array so couldn't pushed value to this data.");
+
+    data.push(value);
+    this.database.set(key, data)
+
+    return data;
   }
-  static unpush(data, key) {
-  return this.efdb.unpush(data, key)
+  unpush(key, value) {
+    if (typeof key == "undefined") throw new TypeError("\"key\" parameter must be available.");
+    if (typeof key != "string") throw new TypeError("\"key\" parameter must be String.");
+    if (typeof value == "undefined") throw new TypeError("\"value\" parameter must be available.");
+    if (!isValidValue(value)) throw new TypeError("\"value\" parameter must be String or Number or Boolean or Object or Array.");
+
+    if ((this.database.has(key) == false) && (this.database.ignoreWarns == false)) console.warn("This data isn't available. Created new array to this data.");
+    if (this.database.has(key) == false) this.database.set(key, []);
+
+
+    if (!Array.isArray(this.database.get(key))) throw new TypeError("This data isn't Array so couldn't pushed value to this data.");
+
+    
+    this.database.set(key, this.database.get(key).filter(k => k != value))
+
+    return this.database.get(key);
   }
-  static all() {
-    return this.efdb.all()
+
+  add(key, value) {
+    if (typeof key == "undefined") throw new TypeError("\"key\" parameter must be available.");
+    if (typeof key != "string") throw new TypeError("\"key\" parameter must be String.");
+    if (typeof value == "undefined") throw new TypeError("\"value\" parameter must be available.");
+    if (typeof value != "number") throw new TypeError("\"value\" parameter must be Number.");
+
+    if ((this.database.has(key) == false) && (this.database.ignoreWarns == false)) console.warn("This data isn't available. The data to be added is received as 0.");
+    if (this.database.has(key) == false) this.database.set(key, 0);
+
+    let data = this.database.get(key);
+    this.database.set(key, (data + value));
+    data = this.database.get(key);
+
+    return data;
   }
-  static delete(data) {
-    return this.efdb.delete(data)
+
+  subtract(key, value) {
+    if (typeof key == "undefined") throw new TypeError("\"key\" parameter must be available.");
+    if (typeof key != "string") throw new TypeError("\"key\" parameter must be String.");
+    if (typeof value == "undefined") throw new TypeError("\"value\" parameter must be available.");
+    if (typeof value != "number") throw new TypeError("\"value\" parameter must be Number.");
+
+    if ((this.database.has(key) == false) && (this.database.ignoreWarns == false)) console.warn("This data isn't available. The data to be subtracted is received as 0.");
+    if (this.database.has(key) == false) this.database.set(key, 0);
+
+    let data = this.database.get(key);
+    this.database.set(key, (data - value));
+    data = this.database.get(key);
+
+    return data;
   }
-  static deleteAll() {
-    return this.efdb.deleteAll()
+
+  substract(key, value) {
+    return this.subtract(key, value);
   }
-} 
-module.exports = efDB
-module.exports.version = "1.1.7"
-module.exports.destek = "https://discord.gg/umXR2mspNx"
+}
+
+module.exports = Database;
