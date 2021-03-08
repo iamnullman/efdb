@@ -5,7 +5,7 @@
 ## Links
 
 - ~~Documentation~~
-- [NPM page](https.//npmjs.com/package/efdb)
+- [NPM page](https://npmjs.com/package/efdb)
 - [GitHub page](https://github.com/NulIMan/efdb)
 
 ## Support
