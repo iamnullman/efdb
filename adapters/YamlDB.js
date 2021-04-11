@@ -1,4 +1,4 @@
-const { isObject, setObject, getObject, deleteObject } = require("../util");
+const { isObject, setObject, getObject, deleteObject } = require("../src/util");
 let fs, YAML;
 
 module.exports = class {
@@ -15,7 +15,7 @@ module.exports = class {
 
     this.databaseName = options.databaseName;
     this.databaseFolder = options.databaseFolder;
-    this.seperator = options.seperator;
+    this.seperator = options.seperator || ".";
     this.ignoreWarns = ((typeof options.ignoreWarns != "undefined") ? options.ignoreWarns : false);
     this.autoFile = ((typeof options.autoFile != "undefined") ? options.autoFile : true);
     this.deletingBlankData = ((typeof options.deletingBlankData != "undefined") ? options.deletingBlankData : false);
