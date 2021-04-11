@@ -15,6 +15,7 @@ module.exports = class {
 
     this.databaseName = options.databaseName;
     this.databaseFolder = options.databaseFolder;
+    this.seperator = options.seperator;
     this.ignoreWarns = ((typeof options.ignoreWarns != "undefined") ? options.ignoreWarns : false);
     this.autoFile = ((typeof options.autoFile != "undefined") ? options.autoFile : true);
     this.deletingBlankData = ((typeof options.deletingBlankData != "undefined") ? options.deletingBlankData : false);
@@ -46,7 +47,7 @@ module.exports = class {
   set(key, value) {
     let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "utf8");
     data = ((YAML.parse(data) == null) ? {} : YAML.parse(data));
-    data = setObject(data, key, value);
+    data = setObject(data, key, value, this.seperator);
 
     fs.writeFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, YAML.stringify(data));
 
@@ -55,21 +56,21 @@ module.exports = class {
 
   get(key) {
     let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "utf8");
-    data = getObject(YAML.parse(data), key);
+    data = getObject(YAML.parse(data), key, this.seperator);
 
     return data;
   }
 
   has(key) {
     let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "utf8");
-    data = getObject(YAML.parse(data), key);
+    data = getObject(YAML.parse(data), key, this.seperator);
 
     return (typeof data != "undefined");
   }
 
   delete(key) {
     let data = fs.readFileSync(`./${this.databaseFolder}/${this.databaseName}.yaml`, "utf8");
-    data = deleteObject(YAML.parse(data), key);
+    data = deleteObject(YAML.parse(data), key, this.seperator);
 
     if (this.deletingBlankData == true) {
       for (let i = 0; i < key.split(".").length; i++) {
