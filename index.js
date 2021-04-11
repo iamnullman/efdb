@@ -1,4 +1,4 @@
-const { isValidValue } = require("./util");
+const { isValidValue } = require("./src/util.js");
 
 class Database {
  
