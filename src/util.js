@@ -1,59 +1,70 @@
 const fs = require("fs");
 
-module.exports.set = function (path, value, obj) {
-    var schema = obj;
-    var pList = path.split(".");
-    var len = pList.length;
-    for(var i = 0; i < len-1; i++) {
-        var elem = pList[`${i}`];
-        if( typeof schema[`${elem}`] !== "object" ) {
-          schema[`${elem}`] = {};
-        }
-        schema = schema[`${elem}`];
-    }
-    schema[pList[`${len-1}`]] = value;
-};
+function isObject(data) {
+  return (!Array.isArray(data) && !(data instanceof Map) && (typeof data == "object"));
+}
 
-module.exports.get = function(obj, ...data) {
-  return data.reduce(function(acc, key) {
-    return acc[`${key}`];
-  }, obj);
-};
+module.exports.isObject = isObject;
 
-module.exports.remove = function(obj, path) {
+module.exports.isValidValue = function (value) {
+  return ((["string", "number", "undefined", "boolean"]).includes(typeof value) || isObject(value) || Array.isArray(value));
+}
 
-    if (!obj || !path) {
-      return;
-    }
-  
-    if (typeof path === "string") {
-      path = path.split(".");
-    }
-  
-    for (var i = 0; i < path.length - 1; i++) {
-  
-      obj = obj[path[`${i}`]];
-  
-      if (typeof obj === "undefined") {
-        return;
+module.exports.getObject = function (data, key, seperator) {
+  if (key.includes(seperator || ".")) {
+    let result = data;
+
+    for (let i = 0; i < key.split(".").length; i++) {
+      let element = key.split(".")[i];
+
+      if (typeof result == "undefined") {
+        break;
+      } else {
+        result = result[element];
       }
     }
-  
-    delete obj[path.pop()];
-};
 
-module.exports.fetchFiles = function(dbFolder, dbName) {
+    return result;
+  } else {
+    return data[key];
+  }
+}
 
-    if (fs.existsSync(`${dbFolder}`) === false){
-        fs.mkdirSync(`${dbFolder}`);
-        if(fs.existsSync(`./${dbFolder}/${dbName}.yaml`) === false) {
-            fs.writeFileSync(`./${dbFolder}/${dbName}.yaml`, "{}");
-            return;
-        }
-    } else {
-        if(fs.existsSync(`./${dbFolder}/${dbName}.yaml`) === false) {
-            fs.writeFileSync(`./${dbFolder}/${dbName}.yaml`, "{}");
-        }
+module.exports.setObject = function (data, key, value, seperator) {
+  if (key.includes(seperator || ".")) {
+   
+    let elements = key.split(".");
+    let lastEl = elements.pop();
+    let lastObj = elements.reduce((a, b) => {
+      if (typeof a[b] == "undefined") a[b] = {};
+
+      return a[b];
+    }, data);
+
+    lastObj[lastEl] = value;
+
+    return data;
+  } else {
+    data[key] = value;
+
+    return data;
+  }
+}
+
+module.exports.deleteObject = function (data, key, seperator) {
+  if (key.includes(seperator || ".")) {
+    let evalString = "delete data";
+
+    for (let i = 0; i < key.split(".").length; i++) {
+      evalString += `["${key.split(".")[i]}"]`;
     }
 
-};
+    eval(evalString);
+
+    return data;
+  } else {
+    delete data[key];
+
+    return data;
+  }
+}
