@@ -14,8 +14,8 @@ module.exports.getObject = function (data, key, seperator) {
   if (key.includes(seperator || ".")) {
     let result = data;
 
-    for (let i = 0; i < key.split(".").length; i++) {
-      let element = key.split(".")[i];
+    for (let i = 0; i < key.split(seperator || ".").length; i++) {
+      let element = key.split(seperator || ".")[i];
 
       if (typeof result == "undefined") {
         break;
@@ -33,7 +33,7 @@ module.exports.getObject = function (data, key, seperator) {
 module.exports.setObject = function (data, key, value, seperator) {
   if (key.includes(seperator || ".")) {
    
-    let elements = key.split(".");
+    let elements = key.split(seperator || ".");
     let lastEl = elements.pop();
     let lastObj = elements.reduce((a, b) => {
       if (typeof a[b] == "undefined") a[b] = {};
@@ -55,8 +55,8 @@ module.exports.deleteObject = function (data, key, seperator) {
   if (key.includes(seperator || ".")) {
     let evalString = "delete data";
 
-    for (let i = 0; i < key.split(".").length; i++) {
-      evalString += `["${key.split(".")[i]}"]`;
+    for (let i = 0; i < key.split(seperator || ".").length; i++) {
+      evalString += `["${key.split(seperator || ".")[i]}"]`;
     }
 
     eval(evalString);
