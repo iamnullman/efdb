@@ -3,13 +3,8 @@ const { isValidValue } = require("./util");
 class Database {
  
   constructor(options) {
-    if (options.adapter.toLowerCase() == "jsondb") {
-      let JSONDatabase = require("./databases/JsonDB");
-      this.database = new JSONDatabase(options);
-    }else if(options.adapter.toLowerCase() == "yamldb") {
       let YAMLDatabase = require("./databases/YamlDB");
       this.database = new YAMLDatabase(options);
-    }else throw new Error("You must specify the database.")
   }
 
   set(key, value) {
