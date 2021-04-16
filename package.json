@@ -1,7 +1,7 @@
 {
   "name": "efdb",
-  "version": "1.1.8",
-  "description": "A database handler, Supports Jsondb, YamlDB.",
+  "version": "1.1.9",
+  "description": "A database handler, Supports YamlDB.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,10 +13,8 @@
   "keywords": [
     "efdb",
     "yaml",
-    "json",
     "eftools",
     "database",
-    "jsondatabase",
     "yamldatabase"
   ],
   "author": "null.man",
