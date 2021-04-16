@@ -1,6 +1,6 @@
 # efdb
 ![npm downloads](https://img.shields.io/npm/dt/efdb)
-+ A database handler, Supports Jsondb, YamlDB.
++ A database handler, Supports YamlDB.
 
 ## Links
 
@@ -20,8 +20,10 @@ const efdb = require("efdb");
 const db = new efdb({
   "databaseName": "database",
   "databaseFolder": "databases",
-  "adapter":"JsonDB",
-  "autoFile": true
+  "autoFile": true,
+  "seperator":".",
+  "ignoreWarns":true,
+  "deletingBlankData":true
 });
 
 db.set("a.b.c", 12) 
