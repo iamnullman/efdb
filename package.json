@@ -15,7 +15,9 @@
     "yaml",
     "eftools",
     "database",
-    "yamldatabase"
+    "yamldatabase",
+    "jsondatabase",
+    "jsondb"
   ],
   "author": "null.man",
   "license": "ISC",
@@ -24,7 +26,6 @@
   },
   "homepage": "https://github.com/NulIMan/efdb#readme",
   "dependencies": {
-    "eftools": "^1.0.2",
-    "fs": "0.0.1-security"
+    "eftools": "^1.0.2"
   }
 }
