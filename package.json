@@ -1,6 +1,6 @@
 {
   "name": "efdb",
-  "version": "1.1.9",
+  "version": "1.2.0-beta",
   "description": "A database handler, Supports YamlDB.",
   "main": "index.js",
   "scripts": {
