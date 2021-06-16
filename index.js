@@ -1,10 +1,14 @@
 const { isValidValue } = require("./src/util.js");
-
+let efDB;
 class Database {
  
   constructor(options) {
-      let YAMLDatabase = require("./databases/YamlDB");
-      this.database = new YAMLDatabase(options);
+   if (!options.hasOwnProperty("adapter")) throw new TypeError("\"options\" parameter must have \"adapter\" prototype.");
+   if (typeof options.databaseName !== "string") throw new TypeError("\"adapter\" prototype in \"options\" parameter must be String.");
+   if(options.adapter === "YamlDB") efDB = require("./adapters/YamlDB.js")
+   if(options.adapter !== "YamlDB") efDB = require("./adapters/JsonDB.js")
+
+   	this.database = new efDB(options);
   }
 
   set(key, value) {
